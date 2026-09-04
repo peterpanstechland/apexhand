@@ -1,0 +1,15 @@
+name: transfer_default
+task: PAN-CoinTransfer-Apex-v0
+play_task: PAN-CoinTransfer-Apex-Play-v0
+mode: train
+physics: physx
+object: pan_coin_32mm
+hand_pose: palm_down_knuckle
+cameras: none
+cli:
+  num_envs: 512
+  max_iterations: 2000
+  seed: 42
+  video: false
+overrides:
+  env.rewards.hold_ok.weight: 0.0

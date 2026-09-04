@@ -1,0 +1,15 @@
+name: baoding_default
+task: PAN-BaodingRotate-Apex-v0
+play_task: PAN-BaodingRotate-Apex-Play-v0
+mode: train
+physics: physx
+object: baoding_45mm
+object2: baoding_45mm
+hand_pose: palm_up_cradle
+cameras: none
+cli:
+  num_envs: 512
+  max_iterations: 2000
+  seed: 42
+  video: false
+overrides: {}

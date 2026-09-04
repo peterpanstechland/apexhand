@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pan-dexterous-lab"
+version = "0.1.0"
+description = "PΛN Dexterous Skill Learning: Apex Hand coin-roll in Isaac Lab"
+requires-python = ">=3.12"
+dependencies = []
+
+[tool.setuptools.packages.find]
+where = ["source"]

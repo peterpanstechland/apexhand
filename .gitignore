@@ -1,0 +1,41 @@
+# Training / eval artifacts (checkpoints, TensorBoard, videos, ONNX)
+logs/
+outputs/
+runs/
+wandb/
+tb_logs/
+exported/
+*.pt
+*.pth
+*.onnx
+*.jit
+events.out.tfevents.*
+*.mp4
+
+# Local Isaac Lab checkout and generated USD
+IsaacLab/
+# Official Apex URDF is its own checkout (has a nested .git)
+assets/apex-hand-urdf/
+*.usd
+*.usda
+*.usdc
+
+# Secrets
+webui/.llm.json
+.env
+.env.*
+!.env.example
+!webui/.llm.json.example
+
+# Python / tooling
+__pycache__/
+*.pyc
+.pytest_cache/
+.hydra/
+.venv/
+*.egg-info/
+
+# Editor
+.cursor/
+.vscode/
+*.swp
