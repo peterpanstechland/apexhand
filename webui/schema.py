@@ -57,10 +57,16 @@ TASKS: list[dict[str, str]] = [
         "summary": "在 Hold 基础上把硬币从食指-中指滚到中指-无名指。",
     },
     {
+        "id": "PAN-BaodingRotate-Apex-Left-v0",
+        "play_id": "PAN-BaodingRotate-Apex-Left-Play-v0",
+        "label": "保健球对转 · 左手 (Baoding)",
+        "summary": "掌心朝上托两颗 30 mm 木球互转。左手＝实机那只，训完可直接部署。",
+    },
+    {
         "id": "PAN-BaodingRotate-Apex-v0",
         "play_id": "PAN-BaodingRotate-Apex-Play-v0",
-        "label": "保健球对转 (Baoding)",
-        "summary": "掌心朝上托两颗球，绕掌心法向互转。手是托举姿态，不是指背。",
+        "label": "保健球对转 · 右手",
+        "summary": "同上但用右手 USD。实机是左手，右手版只用于对照。",
     },
     {
         "id": "PAN-CoinHold-Apex-Vision-v0",
@@ -78,6 +84,7 @@ TASKS: list[dict[str, str]] = [
 
 OBJECT_PRESETS = [
     {"id": "pan_coin_32mm", "label": "PΛN 硬币 32×4 mm", "kind": "coin"},
+    {"id": "baoding_wood_30mm", "label": "木球 30 mm (实物)", "kind": "ball"},
     {"id": "baoding_38mm", "label": "保健球 38 mm", "kind": "ball"},
     {"id": "baoding_45mm", "label": "保健球 45 mm", "kind": "ball"},
     {"id": "baoding_50mm", "label": "保健球 50 mm", "kind": "ball"},
@@ -690,7 +697,7 @@ PARAMS: list[Param] = [
         kind="hydra",
         path="env.rewards.spin.weight",
         ptype="float",
-        default=6.0,
+        default=8.0,
         min=0.0,
         max=30.0,
         step=0.5,
@@ -699,7 +706,7 @@ PARAMS: list[Param] = [
         bigger="更想转起来；太大可能把球甩出掌心。",
         smaller="转得慢或不转。",
         novice="保健球任务的主奖励，从 6 起步。",
-        tasks=["PAN-BaodingRotate-Apex-v0"],
+        tasks=["PAN-BaodingRotate-Apex-Left-v0", "PAN-BaodingRotate-Apex-v0"],
     ),
     _p(
         id="rew_baoding_gap",
@@ -716,7 +723,7 @@ PARAMS: list[Param] = [
         bigger="（更负）间距更死板。",
         smaller="允许更分开。",
         novice="保持 -4。",
-        tasks=["PAN-BaodingRotate-Apex-v0"],
+        tasks=["PAN-BaodingRotate-Apex-Left-v0", "PAN-BaodingRotate-Apex-v0"],
     ),
     _p(
         id="rew_baoding_center",
@@ -733,7 +740,7 @@ PARAMS: list[Param] = [
         bigger="（更负）更想待在掌心。",
         smaller="允许往手指走。",
         novice="保持 -3。",
-        tasks=["PAN-BaodingRotate-Apex-v0"],
+        tasks=["PAN-BaodingRotate-Apex-Left-v0", "PAN-BaodingRotate-Apex-v0"],
     ),
     _p(
         id="rew_baoding_drop",
@@ -750,7 +757,7 @@ PARAMS: list[Param] = [
         bigger="（更负）更不敢转。",
         smaller="不怕掉。",
         novice="保持 -12。",
-        tasks=["PAN-BaodingRotate-Apex-v0"],
+        tasks=["PAN-BaodingRotate-Apex-Left-v0", "PAN-BaodingRotate-Apex-v0"],
     ),
     # ----- domain rand ------------------------------------------------------
     _p(

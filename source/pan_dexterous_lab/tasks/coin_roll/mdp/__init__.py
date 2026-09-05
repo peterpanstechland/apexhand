@@ -1,8 +1,21 @@
-"""Coin-roll MDP terms."""
+"""Coin-roll / baoding MDP terms."""
 
 from .actions import ApexCoupledEMAAction, ApexCoupledEMAActionCfg
-from .events import randomize_camera_offset, randomize_lighting, reset_coin_on_knuckles, reset_objects_in_palm
-from .observations import coin_to_knuckle_rel_pos, fingertip_pos_w, object2_lin_vel_w, object2_pos_w
+from .commands import resample_spin_direction, spin_direction
+from .events import (
+    randomize_camera_offset,
+    randomize_lighting,
+    reset_coin_on_knuckles,
+    reset_objects_in_palm,
+)
+from .observations import (
+    baoding_pair_obs,
+    baoding_spin_command,
+    coin_to_knuckle_rel_pos,
+    fingertip_pos_w,
+    object2_lin_vel_w,
+    object2_pos_w,
+)
 from .rewards import (
     coin_bridge_distance,
     coin_bridge_seat_offset,
@@ -26,8 +39,10 @@ __all__ = [
     "ApexCoupledEMAAction",
     "ApexCoupledEMAActionCfg",
     "ball_gap",
-    "baoding_drop_penalty",
     "balls_dropped",
+    "baoding_drop_penalty",
+    "baoding_pair_obs",
+    "baoding_spin_command",
     "coin_bridge_distance",
     "coin_bridge_seat_offset",
     "coin_dropped",
@@ -48,11 +63,13 @@ __all__ = [
     "progress",
     "randomize_camera_offset",
     "randomize_lighting",
+    "resample_spin_direction",
     "reset_coin_on_knuckles",
     "reset_objects_in_palm",
     "roll_rotation",
     "slip_penalty",
     "spin",
+    "spin_direction",
     "success_bonus",
     "user_reward",
 ]

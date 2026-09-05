@@ -24,7 +24,7 @@ from isaaclab_tasks.utils import PresetCfg
 
 import isaaclab_tasks.manager_based.manipulation.inhand.mdp as inhand_mdp
 
-from pan_dexterous_lab.assets.apex_cfg import CradleRobotPresetCfg, RobotPresetCfg
+from pan_dexterous_lab.assets.apex_cfg import RobotPresetCfg
 from pan_dexterous_lab.assets.cameras import (
     OVERHEAD_RGB128,
     SIDE_RGB128,
@@ -37,16 +37,10 @@ from pan_dexterous_lab.assets.joints import (
     ACTUATED_JOINT_NAMES,
     COUPLED_JOINT_NAMES,
     COUPLED_SOURCE_NAMES,
-    DEFAULT_SIDE,
-    actuated_joint_names,
 )
-from pan_dexterous_lab.assets.objects import (
-    BaodingObject2PresetCfg,
-    BaodingObjectPresetCfg,
-    Object2PresetCfg,
-    ObjectPresetCfg,
-)
+from pan_dexterous_lab.assets.objects import Object2PresetCfg, ObjectPresetCfg
 from pan_dexterous_lab.tasks.coin_roll import mdp as coin_mdp
+from pan_dexterous_lab.tasks.coin_roll.hand_side import apply_hand_side
 
 
 @configclass
@@ -121,29 +115,35 @@ class ActionsCfg:
     )
 
 
+def _actuated_asset_cfg() -> SceneEntityCfg:
+    return SceneEntityCfg("robot", joint_names=ACTUATED_JOINT_NAMES, preserve_order=True)
+
+
+def joint_pos_obs_term() -> ObsTerm:
+    """Normalized actuated joint angles. Shared by every stage's policy group."""
+    return ObsTerm(
+        func=mdp.joint_pos_limit_normalized,
+        noise=Gnoise(std=0.005),
+        params={"asset_cfg": _actuated_asset_cfg()},
+    )
+
+
+def joint_vel_obs_term() -> ObsTerm:
+    """Actuated joint velocities. Shared by every stage's policy group."""
+    return ObsTerm(
+        func=mdp.joint_vel_rel,
+        scale=0.2,
+        noise=Gnoise(std=0.01),
+        params={"asset_cfg": _actuated_asset_cfg()},
+    )
+
+
 @configclass
 class ObservationsCfg:
     @configclass
     class PolicyCfg(ObsGroup):
-        joint_pos = ObsTerm(
-            func=mdp.joint_pos_limit_normalized,
-            noise=Gnoise(std=0.005),
-            params={
-                "asset_cfg": SceneEntityCfg(
-                    "robot", joint_names=ACTUATED_JOINT_NAMES, preserve_order=True
-                )
-            },
-        )
-        joint_vel = ObsTerm(
-            func=mdp.joint_vel_rel,
-            scale=0.2,
-            noise=Gnoise(std=0.01),
-            params={
-                "asset_cfg": SceneEntityCfg(
-                    "robot", joint_names=ACTUATED_JOINT_NAMES, preserve_order=True
-                )
-            },
-        )
+        joint_pos = joint_pos_obs_term()
+        joint_vel = joint_vel_obs_term()
         object_pos = ObsTerm(
             func=mdp.root_pos_w, noise=Gnoise(std=0.002), params={"asset_cfg": SceneEntityCfg("object")}
         )
@@ -414,79 +414,7 @@ class CoinHoldLeftEnvCfg(CoinHoldEnvCfg):
 
     def __post_init__(self):
         super().__post_init__()
-        from pan_dexterous_lab.assets.apex_cfg import APEX_HAND_LEFT_CFG
-
-        self.scene.robot = APEX_HAND_LEFT_CFG.replace(prim_path="{ENV_REGEX_NS}/Robot")
-        names = actuated_joint_names("left")
-        self.actions.joint_pos.joint_names = names
-        self.actions.joint_pos.coupled_joint_names = [n.replace("right_", "left_") for n in COUPLED_JOINT_NAMES]
-        self.actions.joint_pos.coupled_source_names = [n.replace("right_", "left_") for n in COUPLED_SOURCE_NAMES]
-        for term in (self.observations.policy.joint_pos, self.observations.policy.joint_vel):
-            term.params["asset_cfg"] = SceneEntityCfg("robot", joint_names=names, preserve_order=True)
-
-
-@configclass
-class BaodingObservationsCfg(ObservationsCfg):
-    @configclass
-    class PolicyCfg(ObservationsCfg.PolicyCfg):
-        object2_pos = ObsTerm(func=coin_mdp.object2_pos_w, noise=Gnoise(std=0.002))
-        object2_lin_vel = ObsTerm(func=coin_mdp.object2_lin_vel_w, noise=Gnoise(std=0.002))
-
-    policy: PolicyCfg = PolicyCfg()
-
-
-@configclass
-class BaodingRewardsCfg:
-    spin = RewTerm(func=coin_mdp.spin, weight=6.0)
-    ball_gap = RewTerm(func=coin_mdp.ball_gap, weight=-4.0)
-    pair_centering = RewTerm(func=coin_mdp.pair_centering, weight=-3.0)
-    drop = RewTerm(func=coin_mdp.baoding_drop_penalty, weight=-12.0)
-    hold_pair = RewTerm(func=coin_mdp.hold_pair, weight=0.5)
-    joint_vel_l2 = RewTerm(func=mdp.joint_vel_l2, weight=-2.5e-5)
-    action_l2 = RewTerm(func=mdp.action_l2, weight=-0.0001)
-    action_rate_l2 = RewTerm(func=mdp.action_rate_l2, weight=-0.01)
-    finger_crossing = RewTerm(func=coin_mdp.finger_crossing, weight=-20.0)
-    user_term = RewTerm(func=coin_mdp.user_reward, weight=0.0)
-
-
-@configclass
-class BaodingTerminationsCfg:
-    time_out = DoneTerm(func=mdp.time_out, time_out=True)
-    drop = DoneTerm(func=coin_mdp.balls_dropped)
-    object_out_of_reach = DoneTerm(func=inhand_mdp.object_away_from_robot, params={"threshold": 0.45})
-
-
-@configclass
-class BaodingSceneCfg(CoinRollSceneCfg):
-    robot: CradleRobotPresetCfg = CradleRobotPresetCfg()
-    object: BaodingObjectPresetCfg = BaodingObjectPresetCfg()
-    object2: BaodingObject2PresetCfg = BaodingObject2PresetCfg()
-
-
-@configclass
-class BaodingRotateEnvCfg(CoinHoldEnvCfg):
-    scene: BaodingSceneCfg = BaodingSceneCfg(num_envs=512, env_spacing=0.6)
-    observations: BaodingObservationsCfg = BaodingObservationsCfg()
-    rewards: BaodingRewardsCfg = BaodingRewardsCfg()
-    terminations: BaodingTerminationsCfg = BaodingTerminationsCfg()
-
-    def __post_init__(self):
-        super().__post_init__()
-        self.episode_length_s = 8.0
-        self.events.reset_object = EventTerm(
-            func=coin_mdp.reset_objects_in_palm,
-            mode="reset",
-            params={"height": 0.022, "pair_gap": 0.008, "jitter": 0.003},
-        )
-
-
-@configclass
-class BaodingRotateEnvCfg_PLAY(BaodingRotateEnvCfg):
-    def __post_init__(self):
-        super().__post_init__()
-        self.scene.num_envs = 16
-        self.observations.policy.enable_corruption = False
-        self.terminations.time_out = None
+        apply_hand_side(self, "left", "palm_down_knuckle")
 
 
 @configclass

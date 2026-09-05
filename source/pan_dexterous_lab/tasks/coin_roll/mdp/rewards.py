@@ -14,6 +14,7 @@ from pan_dexterous_lab.assets.joints import DEFAULT_SIDE
 from ._geom import (
     _as_torch,
     cached_knuckle_ids,
+    cached_lateral_axis,
     coin_and_robot,
     knuckle_distances,
     knuckle_surface_pos,
@@ -146,11 +147,14 @@ def finger_crossing(
     should make this impossible; this term is the guard that makes it visible in
     the reward log if it ever happens again.
 
-    Lateral is world Y: the hand is fixed palm-down with index -> pinky along +Y.
+    Lateral is measured along the live index -> pinky axis rather than world Y,
+    so the term is valid for either hand.
     """
     robot = env.scene[robot_cfg.name]
     _, link2_ids = cached_knuckle_ids(env, robot, side)
-    lat = _as_torch(robot.data.body_pos_w)[:, link2_ids, 1]
+    pos = _as_torch(robot.data.body_pos_w)[:, link2_ids]
+    axis = cached_lateral_axis(env, robot, side).unsqueeze(1)
+    lat = (pos * axis).sum(dim=-1)
     gaps = lat[:, 1:] - lat[:, :-1]
     return torch.clamp(safe_gap - gaps, min=0.0).sum(dim=-1)
 

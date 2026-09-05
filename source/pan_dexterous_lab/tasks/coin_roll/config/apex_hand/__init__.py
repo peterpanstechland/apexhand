@@ -75,6 +75,26 @@ gym.register(
 )
 
 gym.register(
+    id="PAN-BaodingRotate-Apex-Left-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.apex_env_cfg:BaodingRotateLeftEnvCfg",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:BaodingPPORunnerCfg",
+    },
+)
+
+gym.register(
+    id="PAN-BaodingRotate-Apex-Left-Play-v0",
+    entry_point="isaaclab.envs:ManagerBasedRLEnv",
+    disable_env_checker=True,
+    kwargs={
+        "env_cfg_entry_point": f"{__name__}.apex_env_cfg:BaodingRotateLeftEnvCfg_PLAY",
+        "rsl_rl_cfg_entry_point": f"{agents.__name__}.rsl_rl_ppo_cfg:BaodingPPORunnerCfg",
+    },
+)
+
+gym.register(
     id="PAN-CoinHold-Apex-Vision-v0",
     entry_point="isaaclab.envs:ManagerBasedRLEnv",
     disable_env_checker=True,

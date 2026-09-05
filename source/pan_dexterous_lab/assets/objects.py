@@ -17,6 +17,18 @@ from isaaclab_tasks.utils import PresetCfg
 from .token_cfg import PAN_COIN_CFG
 
 
+# The hackathon's actual balls, measured on the bench: 30 mm turned wood at
+# 9.55 g each. The two numbers cross-check -- a 30 mm sphere is 14.14 cm^3, so
+# 9.55 g implies 676 kg/m^3, right on beech / birch.
+#
+# Single source of truth: the rewards' target gap and the reset spacing are both
+# derived from the radius, so re-measuring the balls does not need matching
+# edits in the MDP terms.
+BAODING_BALL_DIAMETER_M = 0.030
+BAODING_BALL_RADIUS_M = BAODING_BALL_DIAMETER_M / 2.0
+BAODING_BALL_MASS_G = 9.55
+
+
 def _rigid_props() -> sim_utils.RigidBodyPropertiesCfg:
     return sim_utils.RigidBodyPropertiesCfg(
         kinematic_enabled=False,
@@ -65,6 +77,31 @@ def make_ball(
             visual_material=sim_utils.PreviewSurfaceCfg(diffuse_color=color, roughness=0.25),
         ),
         init_state=RigidObjectCfg.InitialStateCfg(pos=pos, rot=(1.0, 0.0, 0.0, 0.0)),
+    )
+
+
+def make_wood_ball(
+    diameter_mm: float = BAODING_BALL_DIAMETER_M * 1000.0,
+    mass_g: float = BAODING_BALL_MASS_G,
+    prim_name: str = "object",
+    color: tuple[float, float, float] = (0.85, 0.72, 0.48),
+    pos: tuple[float, float, float] = (0.0, 0.0, 0.56),
+) -> RigidObjectCfg:
+    """A solid wooden baoding ball, defaulting to the measured bench pair.
+
+    Friction is wood against the hand's rubber tactile shells (mu ~ 0.6-0.9),
+    much grippier than the metal coin the earlier stages used. Restitution stays
+    low so a 9.55 g ball does not bounce out of the cradle on contact.
+    """
+    return make_ball(
+        diameter_mm / 2.0,
+        mass_g,
+        static_friction=0.75,
+        dynamic_friction=0.65,
+        restitution=0.05,
+        prim_name=prim_name,
+        color=color,
+        pos=pos,
     )
 
 
@@ -150,6 +187,21 @@ def make_egg(
     )
 
 
+# The pair spawns straddling the palm centreline. Offsetting by one radius plus a
+# 1 mm skin keeps the two spheres from starting interpenetrated at any diameter;
+# reset_objects_in_palm re-seats them relative to the live palm frame anyway.
+_PAIR_SPAWN_Y = BAODING_BALL_RADIUS_M + 0.001
+
+# The two real balls are the same natural wood, so the policy is never allowed to
+# use colour (see the identity-free pair observation). The tints differ only so
+# play videos and debug renders are readable.
+BAODING_WOOD_30MM = make_wood_ball(
+    color=(0.87, 0.74, 0.50), pos=(-0.04, -_PAIR_SPAWN_Y, 0.545)
+)
+BAODING_WOOD_30MM_B = make_wood_ball(
+    prim_name="object2", color=(0.78, 0.62, 0.38), pos=(-0.04, _PAIR_SPAWN_Y, 0.545)
+)
+
 # Names are diameters. make_ball takes radius in mm.
 BAODING_38MM = make_ball(19.0, 40.0, color=(0.82, 0.18, 0.16), pos=(-0.04, -0.012, 0.545))
 BAODING_45MM = make_ball(22.5, 70.0, color=(0.82, 0.18, 0.16), pos=(-0.04, -0.014, 0.548))
@@ -169,6 +221,7 @@ class ObjectPresetCfg(PresetCfg):
     """Hydra path: ``env.scene.object=baoding_45mm``."""
 
     pan_coin_32mm: RigidObjectCfg = PAN_COIN_CFG
+    baoding_wood_30mm: RigidObjectCfg = BAODING_WOOD_30MM
     baoding_38mm: RigidObjectCfg = BAODING_38MM
     baoding_45mm: RigidObjectCfg = BAODING_45MM
     baoding_50mm: RigidObjectCfg = BAODING_50MM
@@ -183,6 +236,7 @@ class Object2PresetCfg(PresetCfg):
     """Optional second body. ``env.scene.object2=baoding_45mm``."""
 
     none = None
+    baoding_wood_30mm: RigidObjectCfg = BAODING_WOOD_30MM_B
     baoding_38mm: RigidObjectCfg = BAODING_38MM_B
     baoding_45mm: RigidObjectCfg = BAODING_45MM_B
     baoding_50mm: RigidObjectCfg = BAODING_50MM_B
@@ -191,22 +245,19 @@ class Object2PresetCfg(PresetCfg):
 
 @configclass
 class BaodingObjectPresetCfg(PresetCfg):
-    """Default 45 mm pair for the baoding task."""
+    """Default 30 mm wooden pair — the balls the hackathon actually supplies."""
 
+    baoding_wood_30mm: RigidObjectCfg = BAODING_WOOD_30MM
     baoding_38mm: RigidObjectCfg = BAODING_38MM
     baoding_45mm: RigidObjectCfg = BAODING_45MM
     baoding_50mm: RigidObjectCfg = BAODING_50MM
-    default: RigidObjectCfg = baoding_45mm
+    default: RigidObjectCfg = baoding_wood_30mm
 
 
 @configclass
 class BaodingObject2PresetCfg(PresetCfg):
+    baoding_wood_30mm: RigidObjectCfg = BAODING_WOOD_30MM_B
     baoding_38mm: RigidObjectCfg = BAODING_38MM_B
     baoding_45mm: RigidObjectCfg = BAODING_45MM_B
     baoding_50mm: RigidObjectCfg = BAODING_50MM_B
-    default: RigidObjectCfg = baoding_45mm
-
-
-def sphere_volume_mass(radius_m: float, density: float = 1400.0) -> float:
-    """kg from a solid sphere — helper for docs, not used at spawn."""
-    return density * (4.0 / 3.0) * math.pi * radius_m**3
+    default: RigidObjectCfg = baoding_wood_30mm

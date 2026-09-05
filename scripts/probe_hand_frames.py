@@ -16,6 +16,12 @@ parser = argparse.ArgumentParser(description="Probe Apex Hand body frames.")
 parser.add_argument("--side", choices=["right", "left"], default="right")
 parser.add_argument("--pose", choices=["zero", "default"], default="zero")
 parser.add_argument(
+    "--hand-pose",
+    choices=["palm_down_knuckle", "palm_up_cradle"],
+    default="palm_down_knuckle",
+    help="Which spawn pose to build. --pose default then uses that pose's joint angles.",
+)
+parser.add_argument(
     "--rot",
     type=float,
     nargs=4,
@@ -35,7 +41,7 @@ import isaaclab.sim as sim_utils
 from isaaclab.assets import Articulation
 from isaaclab.sim import SimulationContext
 
-from pan_dexterous_lab.assets.apex_cfg import APEX_HAND_LEFT_CFG, APEX_HAND_RIGHT_CFG
+from pan_dexterous_lab.assets.apex_cfg import make_hand_cfg
 
 _GROUPS = ["link0", "link1", "link2", "link3", "link4", "pad", "tip"]
 
@@ -44,7 +50,7 @@ def main() -> None:
     sim = SimulationContext(sim_utils.SimulationCfg(dt=1.0 / 120.0))
     sim_utils.DomeLightCfg(intensity=2000.0).func("/World/Light", sim_utils.DomeLightCfg(intensity=2000.0))
 
-    cfg = (APEX_HAND_RIGHT_CFG if args_cli.side == "right" else APEX_HAND_LEFT_CFG).copy()
+    cfg = make_hand_cfg(args_cli.side, args_cli.hand_pose).copy()
     cfg.prim_path = f"/World/{args_cli.side}_hand"
     if args_cli.pose == "zero":
         cfg.init_state.joint_pos = {".*": 0.0}
@@ -61,7 +67,7 @@ def main() -> None:
     pos = hand.data.body_pos_w.torch[0].detach().cpu()
     quat = hand.data.body_quat_w.torch[0].detach().cpu()
 
-    print(f"# side={args_cli.side} pose={args_cli.pose} rot={cfg.init_state.rot}")
+    print(f"# side={args_cli.side} hand_pose={args_cli.hand_pose} pose={args_cli.pose} rot={cfg.init_state.rot}")
     print(f"# root pos={cfg.init_state.pos}")
     print(f"{'body':28s} {'x':>8s} {'y':>8s} {'z':>8s}")
     for group in ["palm_link", "palm_base", *_GROUPS]:

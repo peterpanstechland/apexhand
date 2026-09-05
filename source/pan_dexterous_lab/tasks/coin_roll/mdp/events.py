@@ -9,8 +9,15 @@ import torch
 from isaaclab.managers import SceneEntityCfg
 
 from pan_dexterous_lab.assets.joints import DEFAULT_SIDE
+from pan_dexterous_lab.assets.objects import BAODING_BALL_RADIUS_M
 
-from ._geom import _as_torch, coin_and_robot, knuckle_surface_pos
+from ._geom import (
+    _as_torch,
+    cached_lateral_axis,
+    coin_and_robot,
+    knuckle_surface_pos,
+    palm_cup_pos,
+)
 
 if TYPE_CHECKING:
     from isaaclab.envs import ManagerBasedEnv
@@ -59,20 +66,31 @@ def reset_objects_in_palm(
     object2_cfg: SceneEntityCfg | None = None,
     robot_cfg: SceneEntityCfg = SceneEntityCfg("robot"),
     height: float = 0.018,
-    pair_gap: float = 0.006,
+    pair_gap: float = 0.003,
+    ball_radius: float = BAODING_BALL_RADIUS_M,
     jitter: float = 0.003,
     side: str = DEFAULT_SIDE,
 ) -> None:
-    """Place one or two objects just above the palm along world +Z (palm-up cradle)."""
+    """Seat one or two objects in the palm cup (palm-up cradle).
+
+    Anchored to the proximal-phalanx row, not to ``palm_link``. The palm frame's
+    origin sits back at the wrist, inside a solid block: spawning there put the
+    balls *inside* the collision mesh, and PhysX depenetrated them out sideways
+    at exactly ``max_depenetration_velocity``, so every episode ended in six
+    steps with the pair already gone. The knuckle row is the actual floor of the
+    cup and is where the balls rest in the reference footage.
+
+    ``pair_gap`` is the clearance between the two ball *surfaces* and ``height``
+    is measured up from the knuckle bone axis, so the centre spacing follows
+    from ``ball_radius`` and neither needs re-tuning when the balls change size.
+    """
     if len(env_ids) == 0:
         return
-    from ._geom import resolve_palm_id
-
     robot = env.scene[robot_cfg.name]
-    palm_id = resolve_palm_id(robot, side)
-    palm = _as_torch(robot.data.body_pos_w)[env_ids, palm_id]
-    y_hat = torch.zeros_like(palm)
-    y_hat[:, 1] = 1.0
+    cup = palm_cup_pos(env, robot, side)[env_ids]
+    # Lateral axis measured from index -> pinky rather than assumed to be world
+    # +Y, which only holds for the right hand.
+    y_hat = cached_lateral_axis(env, robot, side)[env_ids]
 
     names = [object_cfg.name]
     if object2_cfg is not None:
@@ -85,11 +103,11 @@ def reset_objects_in_palm(
         if name not in env.scene.keys():
             continue
         body = env.scene[name]
-        pos = palm.clone()
+        pos = cup.clone()
         pos[:, 2] += height
         if n_obj == 2:
             sign = -1.0 if i == 0 else 1.0
-            pos = pos + y_hat * sign * (pair_gap * 0.5 + 0.02)
+            pos = pos + y_hat * sign * (ball_radius + pair_gap * 0.5)
         if jitter > 0.0:
             pos += (torch.rand_like(pos) * 2.0 - 1.0) * jitter
         root_pose = _as_torch(body.data.default_root_pose)[env_ids].clone()

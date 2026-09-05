@@ -1,15 +1,17 @@
 name: baoding_default
-task: PAN-BaodingRotate-Apex-v0
-play_task: PAN-BaodingRotate-Apex-Play-v0
+# Left hand: the physical Apex Hand on the bench is a left hand, and training
+# the matching side avoids mirroring the policy at deployment.
+task: PAN-BaodingRotate-Apex-Left-v0
+play_task: PAN-BaodingRotate-Apex-Left-Play-v0
 mode: train
 physics: physx
-object: baoding_45mm
-object2: baoding_45mm
+object: baoding_wood_30mm
+object2: baoding_wood_30mm
 hand_pose: palm_up_cradle
 cameras: none
 cli:
-  num_envs: 512
-  max_iterations: 2000
+  num_envs: 4096
+  max_iterations: 3000
   seed: 42
   video: false
 overrides: {}

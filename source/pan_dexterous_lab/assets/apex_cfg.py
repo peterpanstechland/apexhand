@@ -115,7 +115,7 @@ _CRADLE_JOINT_POS = {
 }
 
 
-def _make_hand_cfg(side: Side, pose: str = "palm_down_knuckle") -> ArticulationCfg:
+def make_hand_cfg(side: Side, pose: str = "palm_down_knuckle") -> ArticulationCfg:
     """Build an ArticulationCfg. ``pose`` is ``palm_down_knuckle`` or ``palm_up_cradle``."""
     if pose == "palm_up_cradle":
         rot = _PALM_UP_ROT
@@ -171,10 +171,10 @@ def _make_hand_cfg(side: Side, pose: str = "palm_down_knuckle") -> ArticulationC
     )
 
 
-APEX_HAND_RIGHT_CFG = _make_hand_cfg("right", "palm_down_knuckle")
-APEX_HAND_LEFT_CFG = _make_hand_cfg("left", "palm_down_knuckle")
-APEX_HAND_RIGHT_PALM_UP_CFG = _make_hand_cfg("right", "palm_up_cradle")
-APEX_HAND_LEFT_PALM_UP_CFG = _make_hand_cfg("left", "palm_up_cradle")
+APEX_HAND_RIGHT_CFG = make_hand_cfg("right", "palm_down_knuckle")
+APEX_HAND_LEFT_CFG = make_hand_cfg("left", "palm_down_knuckle")
+APEX_HAND_RIGHT_PALM_UP_CFG = make_hand_cfg("right", "palm_up_cradle")
+APEX_HAND_LEFT_PALM_UP_CFG = make_hand_cfg("left", "palm_up_cradle")
 
 
 @configclass
@@ -211,6 +211,7 @@ __all__ = [
     "actuated_joint_names",
     "coupled_joint_names",
     "coupled_source_names",
+    "make_hand_cfg",
     "pad_body_names",
     "tip_body_names",
 ]

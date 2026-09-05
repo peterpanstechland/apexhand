@@ -44,5 +44,11 @@ class CoinTransferPPORunnerCfg(CoinHoldPPORunnerCfg):
 
 @configclass
 class BaodingPPORunnerCfg(CoinHoldPPORunnerCfg):
-    max_iterations = 2000
+    max_iterations = 3000
     experiment_name = "pan_baoding_rotate"
+    # Asymmetric actor-critic. The actor sees only what the real hand can
+    # measure, so the exported ONNX needs no privileged inputs and no stubs at
+    # deployment; the critic gets ground-truth ball state to cut value variance.
+    # Leaving this unset silently gives the critic the actor's observations and
+    # wastes the privileged group entirely.
+    obs_groups = {"actor": ["policy"], "critic": ["policy", "privileged"]}
