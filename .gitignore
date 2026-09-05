@@ -1,5 +1,6 @@
 # Training / eval artifacts (checkpoints, TensorBoard, videos, ONNX)
 logs/
+log/
 outputs/
 runs/
 wandb/
@@ -16,6 +17,8 @@ events.out.tfevents.*
 IsaacLab/
 # Official Apex URDF is its own checkout (has a nested .git)
 assets/apex-hand-urdf/
+# Vendor SDK, likewise cloned separately -- see docs/REAL_SDK.zh.md
+third_party/
 *.usd
 *.usda
 *.usdc
@@ -33,6 +36,8 @@ __pycache__/
 .pytest_cache/
 .hydra/
 .venv/
+.venv-apex-real/
+
 *.egg-info/
 
 # Editor
