@@ -7,8 +7,8 @@
 - **任务定义（已纠正）**：掌心朝下，硬币平躺在**指背（knuckles）**上做 knuckle roll，不是掌心朝上指腹托币。
 - **Stage A（Hold）**：完成，离线 eval success **100%**（干净 ckpt `model_100`）。
 - **Stage B（Index→Middle）**：完成。离线 **`eval_transfer.py`：61.5% (315/512)**，phase@success≈0.54；drop 0.4%。目标 >50% **已过**。
-- **交付**：最终 15s 视频已有；ONNX/`joint_map.json` 见 `.../rebalance_v2_fin/exported/`（若目录尚空则导出脚本刚修好，重跑即可）。
-- **残留风险**：eval 时指缝 min gap 可到 ~0.4 mm、偶发 squeeze；视频里手指动作大，肉眼确认滚动质量仍建议看最终 mp4。
+- **交付**：最终 15s 视频、ONNX/`joint_map.json`、离线 transfer **61.5%** 已完成。
+- **真机 SDK（空载）**：独立环境已装好（`env_real.sh`，import OK）。**当前网卡在 192.168.88.x，手默认 192.168.0.x，需改网段后才能连** —— 见 [docs/REAL_SDK.zh.md](docs/REAL_SDK.zh.md)。
 
 ## 环境（新机器必做）
 
