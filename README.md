@@ -2,7 +2,7 @@
 
 Apex Hand coin-roll training on this host's existing **Isaac Sim 6.0.1** + **Isaac Lab `v3.0.0-beta2.patch1`**.
 
-**换机续做先看进度：** [PROGRESS.md](PROGRESS.md) · 门闸/数字表：[RESULTS.md](RESULTS.md) · 真机 SDK：[docs/REAL_SDK.zh.md](docs/REAL_SDK.zh.md)
+**换机续做先看进度：** [PROGRESS.md](PROGRESS.md) · 门闸/数字表：[RESULTS.md](RESULTS.md) · 真机 SDK：[docs/REAL_SDK.zh.md](docs/REAL_SDK.zh.md) · 赛事 Checkpoint 1：[docs/CHECKPOINT1.zh.md](docs/CHECKPOINT1.zh.md)
 
 **完整使用教程（环境搭建 / 训练 / Sim2Real）：** [docs/USAGE_GUIDE.zh.md](docs/USAGE_GUIDE.zh.md)
 

@@ -64,7 +64,7 @@ Hold 判据：撑满 ≥150 control steps + 末 30 稳定；评估 `scripts/eval
 | Transfer play（`model_2099`） | `.../rebalance_v2_fin/videos/play/rl-video-15s-final.mp4` |
 | Transfer eval | **61.5%** PASS |
 | ONNX + `joint_map.json` | `.../rebalance_v2_fin/exported/` |
-| `real/` 骨架 | stubs only |
+| `real/` 实机链路 | SDK 封装 + 安全层 + 遥操作 + ONNX 空载回放，均已在实机跑通 |
 | [PROGRESS.md](PROGRESS.md) | 换机交接 |
 
 ## Known issues

@@ -8,7 +8,9 @@
 - **Stage A（Hold）**：完成，离线 eval success **100%**（干净 ckpt `model_100`）。
 - **Stage B（Index→Middle）**：完成。离线 **`eval_transfer.py`：61.5% (315/512)**，phase@success≈0.54；drop 0.4%。目标 >50% **已过**。
 - **交付**：最终 15s 视频、ONNX/`joint_map.json`、离线 transfer **61.5%** 已完成。
-- **真机 SDK（空载）**：独立环境已装好（`env_real.sh`，import OK）。**当前网卡在 192.168.88.x，手默认 192.168.0.x，需改网段后才能连** —— 见 [docs/REAL_SDK.zh.md](docs/REAL_SDK.zh.md)。
+- **真机 SDK**：**已打通**。左手 `192.168.88.200`，固件 3.2.5 / SDK 1.5.2。遥操作连续跑通，ONNX 空载回放跑通 —— 见 [docs/REAL_SDK.zh.md](docs/REAL_SDK.zh.md)。
+- **保健球对转（当前主线）**：`PAN-BaodingRotate-Apex-Left-v0`，30 mm 实测木球 + 左手，4096 env 长训中 —— 见 [docs/BAODING_TRAINING.zh.md](docs/BAODING_TRAINING.zh.md)。
+- **Checkpoint 1 提交材料**：[docs/CHECKPOINT1.zh.md](docs/CHECKPOINT1.zh.md)。
 
 ## 环境（新机器必做）
 
@@ -135,7 +137,8 @@ Gym id：
 - [x] ONNX + `joint_map.json` → `logs/rsl_rl/pan_coin_transfer/2026-09-04_11-26-02_rebalance_v2_fin/exported/`
 - [ ] 人工再看最终视频确认滚动观感（手指动作偏大、指缝偶发收紧）
 - [ ] Hold 也可另导一份 ONNX（若交付要双策略）
-- [ ] `real/` 仅有骨架，硬件未接
+- [x] `real/` 已接上实机（SDK 封装 + 安全层 + 遥操作 + ONNX 空载回放）
+- [ ] 真机装球闭环：掌面标定 → `policy_runner --camera --calib`
 
 ```bash
 python scripts/eval_transfer.py --num_envs 128 --episodes 4 --headless \
