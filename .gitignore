@@ -12,6 +12,8 @@ exported/
 *.jit
 events.out.tfevents.*
 *.mp4
+# Rendered by scripts/md2pdf.sh; the .md next to it is the source of truth
+docs/*.pdf
 
 # Local Isaac Lab checkout and generated USD
 IsaacLab/
